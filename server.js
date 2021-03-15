@@ -62,18 +62,14 @@ app.post("/upload", (req, res) => {
     const buffer = fs.readFileSync(req.file['path']);
     const psd1 = readPsd(buffer, {useImageData: true});
     const array_img = psd1.linkedFiles;
+    const list_object = []
+    array_img.forEach(function (item) {
+      const buff = toBuffer(item.data);
+      var data = imgurUploader(buff)
+      list_object.push({name:item.name, url: data.link})
+    });
 
-    (async function doSomeStuff() {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      for (const item of array_img) {
-        var buff = toBuffer(item.data)
-        imgurUploader(buff).then(data => {
-          console.log({name: item.name, url: data.link})
-        });
-      }
-      await doSomeStuff();
-    })();
-
+    res.send(list_object)
     // Không có lỗi thì lại render cái file ảnh về cho client.
     // Đồng thời file đã được lưu vào thư mục uploads
     // res.sendFile(path.join(`${__dirname}/uploads/${req.file.filename}`));
@@ -81,5 +77,5 @@ app.post("/upload", (req, res) => {
 });
  
 app.listen(8017, "localhost", () => {
-  console.log(`Hello trungquandev.com, I'm running at localhost:8017/`);
+  console.log(`Server running at localhost:8017/`);
 });
